@@ -11,5 +11,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Run Alembic migrations then start uvicorn
-CMD alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8747}
+RUN chmod +x scripts/start.sh
+
+# Wait for DB, run Alembic migrations, then start uvicorn
+CMD ["./scripts/start.sh"]
