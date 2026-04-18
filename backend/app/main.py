@@ -71,6 +71,8 @@ app.add_middleware(
         "http://localhost:3000",
         "http://localhost:3747",
     ],
+    # Any Render deploy for this project (e.g. dhanvantari-pxgv.onrender.com, PR previews)
+    allow_origin_regex=r"^https://dhanvantari(-[a-z0-9]+)?\.onrender\.com$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
