@@ -59,9 +59,12 @@ function SupplementPlaceholder({ name, nameSanskrit, category }: { name: string;
 
 function SupplementImage({ supplement, className }: { supplement: Supplement; className?: string }) {
   if (supplement.image_url) {
+    const src = supplement.image_url.startsWith("http")
+      ? supplement.image_url
+      : `${API_URL}${supplement.image_url}`;
     return (
       <img
-        src={`${API_URL}${supplement.image_url}`}
+        src={src}
         alt={supplement.name}
         className={cn("w-full h-full object-cover rounded-lg", className)}
         loading="lazy"
