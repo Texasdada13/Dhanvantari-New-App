@@ -2,13 +2,14 @@
 AI routes: chat (streaming SSE), plan draft, check-in insights,
 assessment interpretation, dashboard summary.
 """
+import logging
 from datetime import date, datetime
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.core.config import settings
 from app.core.database import get_db
@@ -17,13 +18,14 @@ from app.models.practitioner import Practitioner
 from app.models.patient import Patient, HealthProfile
 from app.models.plan import ConsultationPlan
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
 class ChatRequest(BaseModel):
-    message:    str
+    message:    str = Field(..., min_length=1, max_length=4000)
     patient_id: int | None = None
-    session_id: str = "default"
+    session_id: str = Field(default="default", max_length=64)
 
 
 class PlanDraftRequest(BaseModel):
@@ -195,7 +197,8 @@ Use classical Ayurvedic principles. Recommend only safe, appropriate herbs and d
                 content = content[4:]
         draft = json.loads(content.strip())
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"AI response parse error: {e}")
+        logger.exception("AI response parse error")
+        raise HTTPException(status_code=500, detail="AI response could not be parsed")
 
     return {"draft": draft, "patient_id": patient_id}
 
@@ -354,7 +357,8 @@ Use proper Ayurvedic terminology. Be specific and clinically relevant. Return on
                 content = content[4:]
         interpretation = json.loads(content.strip())
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"AI response parse error: {e}")
+        logger.exception("AI response parse error")
+        raise HTTPException(status_code=500, detail="AI response could not be parsed")
 
     return {"interpretation": interpretation, "assessment_id": assessment_id}
 

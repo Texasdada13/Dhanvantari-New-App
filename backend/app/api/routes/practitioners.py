@@ -6,7 +6,7 @@ import aiofiles
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from pydantic import BaseModel
+from pydantic import BaseModel, AnyHttpUrl, Field
 
 from app.core.database import get_db
 from app.core.config import settings
@@ -17,14 +17,14 @@ router = APIRouter()
 
 
 class ProfileUpdate(BaseModel):
-    name: str | None = None
-    practice_name: str | None = None
-    designation: str | None = None
-    bio: str | None = None
-    tagline: str | None = None
-    location: str | None = None
-    telehealth_url: str | None = None
-    website: str | None = None
+    name: str | None = Field(default=None, max_length=200)
+    practice_name: str | None = Field(default=None, max_length=200)
+    designation: str | None = Field(default=None, max_length=50)
+    bio: str | None = Field(default=None, max_length=4000)
+    tagline: str | None = Field(default=None, max_length=280)
+    location: str | None = Field(default=None, max_length=200)
+    telehealth_url: AnyHttpUrl | None = None
+    website: AnyHttpUrl | None = None
 
 
 def _practitioner_dict(p: Practitioner) -> dict:
@@ -64,7 +64,8 @@ async def update_me(
     practitioner: Practitioner = Depends(get_current_practitioner),
     db: AsyncSession = Depends(get_db),
 ):
-    for field, value in body.model_dump(exclude_none=True).items():
+    # mode='json' coerces AnyHttpUrl → str for SQLAlchemy compatibility
+    for field, value in body.model_dump(mode="json", exclude_none=True).items():
         setattr(practitioner, field, value)
     await db.flush()
     return _practitioner_dict(practitioner)

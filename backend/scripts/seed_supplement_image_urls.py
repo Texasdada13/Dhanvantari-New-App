@@ -128,7 +128,9 @@ async def main():
 
         await db.commit()
         print(f"\n{filled} URLs set, {skipped} already had one, {missing} unmapped, {failed} lookup-failed.")
-    await engine.dispose()
+    # Intentionally do NOT dispose the shared engine here — it's a module
+    # singleton from app.core.database and other boot-time scripts may
+    # reuse it in the same interpreter process.
 
 
 if __name__ == "__main__":

@@ -5,11 +5,9 @@ import { useQuery } from "@tanstack/react-query";
 import { Send, Bot, User, Sparkles, Loader2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { patientsApi } from "@/lib/api/client";
+import { patientsApi, API_URL } from "@/lib/api/client";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8747";
 
 type Message = {
   id: string;

@@ -1,6 +1,7 @@
 """
 Consultation notes — CRUD + AI draft generation.
 """
+import logging
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,6 +15,7 @@ from app.models.practitioner import Practitioner
 from app.models.consultation_note import ConsultationNote
 from app.models.patient import Patient, HealthProfile
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
@@ -220,8 +222,13 @@ async def send_note(
     if not note:
         raise HTTPException(status_code=404, detail="Note not found")
 
-    # Get patient email
-    patient_result = await db.execute(select(Patient).where(Patient.id == patient_id))
+    # Get patient email (scope to this practitioner's patients)
+    patient_result = await db.execute(
+        select(Patient).where(
+            Patient.id == patient_id,
+            Patient.practitioner_id == practitioner.id,
+        )
+    )
     patient = patient_result.scalars().first()
 
     note.sent = True
@@ -377,7 +384,8 @@ Return only valid JSON."""
                 content = content[4:]
         draft = json.loads(content.strip())
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"AI response parse error: {e}")
+        logger.exception("AI response parse error")
+        raise HTTPException(status_code=500, detail="AI response could not be parsed")
 
     return {"draft": draft, "patient_id": patient_id}
 

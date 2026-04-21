@@ -11,14 +11,16 @@ class Settings(BaseSettings):
     # ── App ──────────────────────────────────────────────────────────────────
     APP_NAME: str = "Dhanvantari Ayurveda Care Platform"
     APP_VERSION: str = "1.0.0"
-    DEBUG: bool = True
+    DEBUG: bool = False
     FRONTEND_URL: str = "http://localhost:3747"
 
     # ── Database ─────────────────────────────────────────────────────────────
     DATABASE_URL: str = "postgresql://postgres:postgres@localhost:5432/dhanvantari"
 
     # ── Auth / JWT ───────────────────────────────────────────────────────────
-    SECRET_KEY: str = "change-me-in-production-use-secrets-token-hex-32"
+    # No default — startup must fail loudly if SECRET_KEY env var is missing
+    # so we never silently sign production tokens with a public string.
+    SECRET_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7   # 7 days
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30

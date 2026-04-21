@@ -371,10 +371,13 @@ async def seed():
             therapy_map[t.name] = t.id
             print(f"  + Therapy: {t.name} (${t.default_price_cents / 100:.0f}/{t.default_duration_minutes}min)")
 
-        # Seed combination packages
+        # Seed combination packages. Avoid .pop() so the module-level
+        # dicts stay intact if this function is ever re-invoked in the
+        # same process.
         for p_data in PACKAGES:
-            therapy_names = p_data.pop("therapy_names", [])
-            pkg = ServicePackage(**p_data, is_community=True)
+            therapy_names = p_data.get("therapy_names", [])
+            pkg_fields = {k: v for k, v in p_data.items() if k != "therapy_names"}
+            pkg = ServicePackage(**pkg_fields, is_community=True)
             db.add(pkg)
             await db.flush()
             for idx, name in enumerate(therapy_names):
@@ -384,8 +387,9 @@ async def seed():
 
         # Seed pampering packages
         for p_data in PAMPERING:
-            therapy_names = p_data.pop("therapy_names", [])
-            pkg = ServicePackage(**p_data, is_community=True)
+            therapy_names = p_data.get("therapy_names", [])
+            pkg_fields = {k: v for k, v in p_data.items() if k != "therapy_names"}
+            pkg = ServicePackage(**pkg_fields, is_community=True)
             db.add(pkg)
             await db.flush()
             for idx, name in enumerate(therapy_names):

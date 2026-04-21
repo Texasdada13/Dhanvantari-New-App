@@ -6,7 +6,7 @@ from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 from app.core.database import get_db
 from app.core.security import hash_password, verify_password, create_access_token, create_refresh_token, decode_token
@@ -21,16 +21,16 @@ TRIAL_DAYS = 14
 # ── Schemas ────────────────────────────────────────────────────────────────
 
 class RegisterRequest(BaseModel):
-    name:          str
+    name:          str = Field(..., min_length=1, max_length=200)
     email:         EmailStr
-    password:      str
-    practice_name: str | None = None
-    designation:   str | None = None  # CAP, CAAP, AV, BAMS
+    password:      str = Field(..., min_length=8, max_length=128)
+    practice_name: str | None = Field(default=None, max_length=200)
+    designation:   str | None = Field(default=None, max_length=50)  # CAP, CAAP, AV, BAMS
 
 
 class LoginRequest(BaseModel):
     email:    EmailStr
-    password: str
+    password: str = Field(..., max_length=128)
 
 
 class TokenResponse(BaseModel):

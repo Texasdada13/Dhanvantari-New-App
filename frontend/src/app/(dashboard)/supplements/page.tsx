@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Search, Leaf, Flame, Droplets, Wind, Brain, LayoutGrid, List, Upload, Trash2, Loader2, ImageIcon } from "lucide-react";
-import { supplementsApi } from "@/lib/api/client";
+import { supplementsApi, API_URL } from "@/lib/api/client";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
@@ -20,8 +20,6 @@ type Supplement = {
   cautions?: string;
   image_url?: string;
 };
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8747";
 
 const CATEGORIES = ["Adaptogenic", "Rejuvenative", "Nervine", "Digestive", "Immunomodulator", "Nutritive", "Detoxifying", "Anti-inflammatory"];
 

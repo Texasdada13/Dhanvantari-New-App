@@ -230,7 +230,12 @@ async def remove_supplement(
     practitioner: Practitioner = Depends(get_current_practitioner),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(PlanSupplement).where(PlanSupplement.id == ps_id))
+    result = await db.execute(
+        select(PlanSupplement)
+        .join(ConsultationPlan, ConsultationPlan.id == PlanSupplement.plan_id)
+        .join(Patient, Patient.id == ConsultationPlan.patient_id)
+        .where(PlanSupplement.id == ps_id, Patient.practitioner_id == practitioner.id)
+    )
     ps = result.scalars().first()
     if not ps:
         raise HTTPException(status_code=404, detail="Not found")
@@ -263,7 +268,12 @@ async def remove_recipe(
     practitioner: Practitioner = Depends(get_current_practitioner),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(PlanRecipe).where(PlanRecipe.id == pr_id))
+    result = await db.execute(
+        select(PlanRecipe)
+        .join(ConsultationPlan, ConsultationPlan.id == PlanRecipe.plan_id)
+        .join(Patient, Patient.id == ConsultationPlan.patient_id)
+        .where(PlanRecipe.id == pr_id, Patient.practitioner_id == practitioner.id)
+    )
     pr = result.scalars().first()
     if not pr:
         raise HTTPException(status_code=404, detail="Not found")

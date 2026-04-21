@@ -100,10 +100,15 @@ async def list_patients(
     )
     patients = result.scalars().all()
 
-    # Check which patients have an active plan
+    # Check which patients have an active plan — must scope to this
+    # practitioner's patients to avoid leaking cross-tenant membership.
     plan_result = await db.execute(
         select(ConsultationPlan.patient_id)
-        .where(ConsultationPlan.active == True)  # noqa: E712
+        .join(Patient, Patient.id == ConsultationPlan.patient_id)
+        .where(
+            ConsultationPlan.active == True,  # noqa: E712
+            Patient.practitioner_id == current.id,
+        )
     )
     active_plan_ids = set(plan_result.scalars().all())
 

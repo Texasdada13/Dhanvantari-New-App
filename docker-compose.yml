@@ -27,7 +27,7 @@ services:
       DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/dhanvantari
       FRONTEND_URL: http://localhost:3747
       DEBUG: "true"
-      SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-in-production}
+      SECRET_KEY: ${SECRET_KEY:?set SECRET_KEY in .env (generate with: python -c "import secrets; print(secrets.token_hex(32))")}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
@@ -45,7 +45,8 @@ services:
         NEXT_PUBLIC_API_URL: http://localhost:8747
     restart: unless-stopped
     ports:
-      - "3747:3000"
+      # frontend/Dockerfile exposes PORT=10000 for Render; map host 3747 → container 10000
+      - "3747:10000"
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:8747
     depends_on:
@@ -57,7 +58,7 @@ services:
     command: python scripts/seed_demo.py
     environment:
       DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/dhanvantari
-      SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-in-production}
+      SECRET_KEY: ${SECRET_KEY:?set SECRET_KEY in .env}
     depends_on:
       postgres:
         condition: service_healthy

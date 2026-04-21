@@ -78,7 +78,7 @@ app.include_router(therapies.plan_package_router,  prefix="/api/plans",      tag
 
 @app.get("/api/health")
 async def health():
-    return {"status": "ok", "version": settings.APP_VERSION, "build": "demo-seed-v1"}
+    return {"status": "ok", "version": settings.APP_VERSION, "build": "hardening-v1"}
 
 
 # ── Static files (logo uploads) ───────────────────────────────────────────────
